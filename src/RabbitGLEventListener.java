@@ -57,10 +57,22 @@ public class RabbitGLEventListener extends RabbitListener{
 
         DrawBackground(gl);
 
+        //level 1
+        /*
         DrawPit(gl, x, y, pit, 0.5f, 1.0f,1);
         DrawPit(gl, x, y, pit, 1.0f, 1.5f,1);
         DrawPit(gl, x, y, pit, 1.5f, 1.0f,1);
-        DrawRabbit(gl, x, y, rabbit, 0.5f , 0.8f , 1);
+        */
+
+        //level 2
+        DrawPit(gl , x , y , pit , 1.5f , 1.3f , 1);
+        DrawPit(gl , x , y , pit , 1.0f , 1.2f , 1);
+        DrawPit(gl , x , y , pit , 1.2f , 0.9f , 1);
+        DrawPit(gl , x , y , pit , 0.3f , 1.3f , 1);
+        DrawPit(gl , x , y , pit , 0.4f , 0.8f , 1);
+        DrawPit(gl , x , y , pit , 0.7f , 0.6f , 1);
+
+        //DrawRabbit(gl, x, y, rabbit, 0.5f , 0.8f , 1);
     }
 
     public void DrawPit(GL gl , int x , int y , int index ,float x_axis , float y_axis ,  float scale){
