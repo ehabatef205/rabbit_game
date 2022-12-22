@@ -2,7 +2,9 @@ import Texture.TextureReader;
 
 import javax.media.opengl.GL;
 import javax.media.opengl.GLAutoDrawable;
+import javax.media.opengl.GLCanvas;
 import javax.media.opengl.glu.GLU;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 
@@ -10,8 +12,9 @@ public class RabbitGLEventListener extends RabbitListener{
 
     int pit = 1;
     int rabbit = 2;
-
     int hammer = 0;
+    int xPosition ;
+    int yPosition;
     int maxWidth = 100;
     int maxHeight = 100;
     int x = maxWidth / 2, y = maxHeight / 2;
@@ -73,7 +76,7 @@ public class RabbitGLEventListener extends RabbitListener{
         DrawPit(gl , x , y , pit , 0.5f , 0.8f , 1);*/
 
         //level 3
-        DrawPit(gl , x , y , pit , 1.5f , 1.4f , 1);
+        /*DrawPit(gl , x , y , pit , 1.5f , 1.4f , 1);
         DrawPit(gl , x , y , pit , 1.0f , 1.4f , 1);
         DrawPit(gl , x , y , pit , 0.5f , 1.4f , 1);
         DrawPit(gl , x , y , pit , 1.5f , 1.0f , 1);
@@ -81,9 +84,32 @@ public class RabbitGLEventListener extends RabbitListener{
         DrawPit(gl , x , y , pit , 0.5f , 1.0f , 1);
         DrawPit(gl , x , y , pit , 1.5f , 0.6f , 1);
         DrawPit(gl , x , y , pit , 1.0f , 0.6f , 1);
-        DrawPit(gl , x , y , pit , 0.5f , 0.6f , 1);
+        DrawPit(gl , x , y , pit , 0.5f , 0.6f , 1);*/
 
         //DrawRabbit(gl, x, y, rabbit, 0.5f , 0.8f , 1);
+        DrawHammer(gl , xPosition , yPosition , hammer, 0.8f);
+    }
+
+    private void DrawHammer(GL gl, int x, int y, int index, float scale) {
+        gl.glEnable(GL.GL_BLEND);
+        gl.glBindTexture(GL.GL_TEXTURE_2D, textures[index]);	// Turn Blending On
+
+        gl.glPushMatrix();
+        gl.glTranslated(x / (maxWidth / 2.0) - 1, y / (maxHeight / 2.0) - 1, 0);
+        gl.glScaled(0.15 * scale, 0.15 * scale, 1);
+        gl.glBegin(GL.GL_QUADS);
+        // Front Face
+        gl.glTexCoord2f(0.0f, 0.0f);
+        gl.glVertex3f(-1.0f, -1.0f, -1.0f);
+        gl.glTexCoord2f(1.0f, 0.0f);
+        gl.glVertex3f(1.0f, -1.0f, -1.0f);
+        gl.glTexCoord2f(1.0f, 1.0f);
+        gl.glVertex3f(1.0f, 1.0f, -1.0f);
+        gl.glTexCoord2f(0.0f, 1.0f);
+        gl.glVertex3f(-1.0f, 1.0f, -1.0f);
+        gl.glEnd();
+        gl.glPopMatrix();
+        gl.glDisable(GL.GL_BLEND);
     }
 
     public void DrawPit(GL gl , int x , int y , int index ,float x_axis , float y_axis ,  float scale){
@@ -188,5 +214,21 @@ public class RabbitGLEventListener extends RabbitListener{
     @Override
     public void mouseExited(MouseEvent e) {
 
+    }
+
+    @Override
+    public void mouseDragged(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent e) {
+        double x = e.getX();
+        double y = e.getY();
+        Component c = e.getComponent();
+        double width = c.getWidth();
+        double height = c.getHeight();
+        xPosition = (int) ((x / width) * 100) + 6;
+        yPosition = ((int) (((height-y) / height) * 100));
     }
 }
