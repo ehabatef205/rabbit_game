@@ -65,12 +65,23 @@ public class RabbitGLEventListener extends RabbitListener{
         */
 
         //level 2
-        DrawPit(gl , x , y , pit , 1.5f , 1.3f , 1);
+        /*DrawPit(gl , x , y , pit , 1.5f , 1.2f , 1);
         DrawPit(gl , x , y , pit , 1.0f , 1.2f , 1);
-        DrawPit(gl , x , y , pit , 1.2f , 0.9f , 1);
-        DrawPit(gl , x , y , pit , 0.3f , 1.3f , 1);
-        DrawPit(gl , x , y , pit , 0.4f , 0.8f , 1);
-        DrawPit(gl , x , y , pit , 0.7f , 0.6f , 1);
+        DrawPit(gl , x , y , pit , 0.5f , 1.2f , 1);
+        DrawPit(gl , x , y , pit , 1.5f , 0.8f , 1);
+        DrawPit(gl , x , y , pit , 1.0f , 0.8f , 1);
+        DrawPit(gl , x , y , pit , 0.5f , 0.8f , 1);*/
+
+        //level 3
+        DrawPit(gl , x , y , pit , 1.5f , 1.4f , 1);
+        DrawPit(gl , x , y , pit , 1.0f , 1.4f , 1);
+        DrawPit(gl , x , y , pit , 0.5f , 1.4f , 1);
+        DrawPit(gl , x , y , pit , 1.5f , 1.0f , 1);
+        DrawPit(gl , x , y , pit , 1.0f , 1.0f , 1);
+        DrawPit(gl , x , y , pit , 0.5f , 1.0f , 1);
+        DrawPit(gl , x , y , pit , 1.5f , 0.6f , 1);
+        DrawPit(gl , x , y , pit , 1.0f , 0.6f , 1);
+        DrawPit(gl , x , y , pit , 0.5f , 0.6f , 1);
 
         //DrawRabbit(gl, x, y, rabbit, 0.5f , 0.8f , 1);
     }
