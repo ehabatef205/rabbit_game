@@ -1,4 +1,5 @@
 import Texture.TextureReader;
+import com.sun.opengl.util.j2d.TextRenderer;
 
 import javax.media.opengl.GL;
 import javax.media.opengl.GLAutoDrawable;
@@ -18,6 +19,9 @@ public class RabbitGLEventListener extends RabbitListener{
     int maxWidth = 100;
     int maxHeight = 100;
     int x = maxWidth / 2, y = maxHeight / 2;
+    int score = 0;
+    int timer = 1000;
+    TextRenderer textRenderer = new TextRenderer(new Font("sanaSerif", Font.BOLD, 10));
     String textureNames[] = {"hammer.png","pit.png", "rabbit.png","back.png"};
 
     TextureReader.Texture texture[] = new TextureReader.Texture[textureNames.length];
@@ -58,6 +62,7 @@ public class RabbitGLEventListener extends RabbitListener{
         gl.glClear(GL.GL_COLOR_BUFFER_BIT);       //Clear The Screen And The Depth Buffer
         gl.glLoadIdentity();
 
+
         DrawBackground(gl);
 
         //level 1
@@ -88,6 +93,16 @@ public class RabbitGLEventListener extends RabbitListener{
 
         //DrawRabbit(gl, x, y, rabbit, 0.5f , 0.8f , 1);
         DrawHammer(gl , xPosition , yPosition , hammer, 0.8f);
+        drawScore();
+    }
+
+    void drawScore(){
+        textRenderer.beginRendering(300, 300);
+        textRenderer.setColor(Color.blue);
+        textRenderer.draw("Score : " + score, 20, 280);
+        textRenderer.draw("Timer : " + timer, 20, 265);
+        textRenderer.setColor(Color.WHITE);
+        textRenderer.endRendering();
     }
 
     private void DrawHammer(GL gl, int x, int y, int index, float scale) {
@@ -225,9 +240,11 @@ public class RabbitGLEventListener extends RabbitListener{
     public void mouseMoved(MouseEvent e) {
         double x = e.getX();
         double y = e.getY();
+
         Component c = e.getComponent();
         double width = c.getWidth();
         double height = c.getHeight();
+
         xPosition = (int) ((x / width) * 100) + 6;
         yPosition = ((int) (((height-y) / height) * 100));
     }
