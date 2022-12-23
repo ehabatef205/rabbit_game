@@ -19,7 +19,7 @@ public class Main extends JFrame {
         glcanvas.addMouseListener(listener);
         glcanvas.addMouseMotionListener(listener);
         getContentPane().add(glcanvas, BorderLayout.CENTER);
-        animator = new FPSAnimator(15);
+        animator = new FPSAnimator(30);
         animator.add(glcanvas);
         animator.start();
 
