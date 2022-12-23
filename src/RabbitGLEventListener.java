@@ -11,9 +11,10 @@ import java.io.IOException;
 
 public class RabbitGLEventListener extends RabbitListener{
 
-    int pit = 1;
-    int rabbit = 2;
-    int hammer = 0;
+    int pit = 2;
+    int rabbit = 3;
+    int hammer = 0, hammer2 = 1;
+    int game_over = 5;
     int xPosition ;
     int yPosition;
     int maxWidth = 100;
@@ -22,7 +23,8 @@ public class RabbitGLEventListener extends RabbitListener{
     int score = 0;
     int timer = 1000;
     TextRenderer textRenderer = new TextRenderer(new Font("sanaSerif", Font.BOLD, 10));
-    String textureNames[] = {"hammer.png","pit.png", "rabbit.png","back.png"};
+    TextRenderer textRenderer1 = new TextRenderer(new Font("sanaSerif", Font.BOLD, 40));
+    String textureNames[] = {"hammer.png", "hammer2.png" ,"pit.png", "rabbit.png","back.png", "game_over.png"};
 
     TextureReader.Texture texture[] = new TextureReader.Texture[textureNames.length];
 
@@ -92,11 +94,48 @@ public class RabbitGLEventListener extends RabbitListener{
         DrawPit(gl , x , y , pit , 0.5f , 0.6f , 1);*/
 
         //DrawRabbit(gl, x, y, rabbit, 0.5f , 0.8f , 1);
-        DrawHammer(gl , xPosition , yPosition , hammer, 0.8f);
-        drawScore();
+        //draw hammer
+        //DrawHammer(gl , xPosition , yPosition , hammer, 0.8f);
+
+        //draw score
+        //DrawScore();
+
+        //draw game_over
+        DrawGameOver(gl, x , y , game_over ,2.5f);
+        DrawScore_game_over();
     }
 
-    void drawScore(){
+    private void DrawGameOver(GL gl, int x, int y, int index, float scale) {
+        gl.glEnable(GL.GL_BLEND);
+        gl.glBindTexture(GL.GL_TEXTURE_2D, textures[index]);	// Turn Blending On
+
+        gl.glPushMatrix();
+        gl.glTranslated(x / (maxWidth / 2.0) - 1, y / (maxHeight / 2.0) - 0.6, 0);
+        gl.glScaled(0.2 * scale, 0.2 * scale, 1);
+        gl.glBegin(GL.GL_QUADS);
+        // Front Face
+        gl.glTexCoord2f(0.0f, 0.0f);
+        gl.glVertex3f(-1.0f, -1.0f, -1.0f);
+        gl.glTexCoord2f(1.0f, 0.0f);
+        gl.glVertex3f(1.0f, -1.0f, -1.0f);
+        gl.glTexCoord2f(1.0f, 1.0f);
+        gl.glVertex3f(1.0f, 1.0f, -1.0f);
+        gl.glTexCoord2f(0.0f, 1.0f);
+        gl.glVertex3f(-1.0f, 1.0f, -1.0f);
+        gl.glEnd();
+        gl.glPopMatrix();
+        gl.glDisable(GL.GL_BLEND);
+    }
+    private void DrawScore_game_over(){
+        textRenderer1.beginRendering(800, 800);
+        textRenderer1.setColor(Color.blue);
+        textRenderer1.draw("Your Score Is " + score, 240, 340);
+        textRenderer1.draw("Play Again?", 270, 280);
+        textRenderer1.setColor(Color.WHITE);
+        textRenderer1.endRendering();
+    }
+
+    private void DrawScore(){
         textRenderer.beginRendering(300, 300);
         textRenderer.setColor(Color.blue);
         textRenderer.draw("Score : " + score, 20, 280);
@@ -177,7 +216,7 @@ public class RabbitGLEventListener extends RabbitListener{
 
     public void DrawBackground(GL gl){
         gl.glEnable(GL.GL_BLEND);
-        gl.glBindTexture(GL.GL_TEXTURE_2D, textures[3]);	// Turn Blending On
+        gl.glBindTexture(GL.GL_TEXTURE_2D, textures[4]);	// Turn Blending On
 
         gl.glPushMatrix();
         gl.glBegin(GL.GL_QUADS);
@@ -213,12 +252,30 @@ public class RabbitGLEventListener extends RabbitListener{
 
     @Override
     public void mousePressed(MouseEvent e) {
+        double x = e.getX();
+        double y = e.getY();
 
+        Component c = e.getComponent();
+        double width = c.getWidth();
+        double height = c.getHeight();
+
+        xPosition = (int) ((x / width) * 100) + 6;
+        yPosition = ((int) (((height-y) / height) * 100));
+        hammer = 1;
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
+        double x = e.getX();
+        double y = e.getY();
 
+        Component c = e.getComponent();
+        double width = c.getWidth();
+        double height = c.getHeight();
+
+        xPosition = (int) ((x / width) * 100) + 6;
+        yPosition = ((int) (((height-y) / height) * 100));
+        hammer = 0;
     }
 
     @Override
