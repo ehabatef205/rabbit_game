@@ -12,6 +12,7 @@ public class Main extends JFrame {
     public Main(RabbitListener aListener) {
         GLCanvas glcanvas;
         Animator animator;
+        ImageIcon img = new ImageIcon("Assets//rabbit.png");
 
         RabbitListener listener = aListener;
         glcanvas = new GLCanvas();
@@ -25,6 +26,7 @@ public class Main extends JFrame {
 
         setTitle("Rabbit Game");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setIconImage(img.getImage());
         setResizable(false);
         setSize(800, 800);
         setLocationRelativeTo(null);

@@ -7,6 +7,7 @@ import javax.media.opengl.glu.GLU;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.FloatControl;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
@@ -113,28 +114,15 @@ public class RabbitGLEventListener extends RabbitListener {
 
     int textures[] = new int[textureNames.length];
 
-    AudioInputStream audioStream, audio;
+    AudioInputStream audioStream, audio, gameover, hammerSound, whistle;
 
-    Clip clip, clip1;
+    Clip clip, clip1, clip2, clip3, clip4;
 
     @Override
     public void init(GLAutoDrawable glAutoDrawable) {
-        try {
-            audioStream = AudioSystem.getAudioInputStream(new File("song//song.wav"));
-            audio = AudioSystem.getAudioInputStream(new File("song//alert.wav"));
-            clip = AudioSystem.getClip();
-            clip.open(audioStream);
-            clip.start();
-
-            clip1 = AudioSystem.getClip();
-            clip1.open(audio);
-
-        } catch (Exception ex) {
-            System.err.println(ex.getMessage());
-        }
         GL gl = glAutoDrawable.getGL();
-        gl.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-        gl.glEnable(GL.GL_TEXTURE_2D);  // Enable Texture Mapping
+        gl.glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
+        gl.glEnable(GL.GL_TEXTURE_2D);
         gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
         gl.glGenTextures(textureNames.length, textures, 0);
         for (int i = 0; i < textureNames.length; i++) {
@@ -155,6 +143,15 @@ public class RabbitGLEventListener extends RabbitListener {
                 System.out.println(e);
                 e.printStackTrace();
             }
+        }
+        try {
+            audioStream = AudioSystem.getAudioInputStream(new File("song//song.wav"));
+            clip = AudioSystem.getClip();
+            clip.open(audioStream);
+            changeVolume(clip);
+            clip.start();
+        } catch (Exception ex) {
+            System.err.println(ex.getMessage());
         }
     }
 
@@ -209,6 +206,9 @@ public class RabbitGLEventListener extends RabbitListener {
                             DrawButton(gl, 40, 45, 24, scaleBack);
                             break;
                     }
+                    if (sound == 18) {
+                        clip.stop();
+                    }
                     DrawHammer(gl, xPosition, yPosition, hammer, 0.8f);
                     timer--;
                     rabbit_TTl--;
@@ -216,22 +216,36 @@ public class RabbitGLEventListener extends RabbitListener {
                         switch (difficulty) {
                             case "Easy":
                                 rabbit_TTl = 30;
+                                soundWhistle();
                                 rabbit_position = rand.nextInt(level * 3);
                                 break;
 
                             case "Medium":
                                 rabbit_TTl = 20;
+                                soundWhistle();
                                 rabbit_position = rand.nextInt(level * 3);
                                 break;
 
                             case "Hard":
                                 rabbit_TTl = 10;
+                                soundWhistle();
                                 rabbit_position = rand.nextInt(level * 3);
                                 break;
                         }
                     DrawScore();
                 } else {
                     screen = "Game_Over";
+                    try {
+                        gameover = AudioSystem.getAudioInputStream(new File("song//gameover.wav"));
+                        clip2 = AudioSystem.getClip();
+                        clip2.open(gameover);
+                        changeVolume(clip2);
+                        if (sound == 18) {
+                            clip2.start();
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                     storeHighScore();
                 }
                 break;
@@ -248,8 +262,16 @@ public class RabbitGLEventListener extends RabbitListener {
                 DrawButton(gl, -25, 20, 26, scaleResume);
                 DrawButton(gl, -25, 0, 25, scaleRestart);
                 DrawButton(gl, -25, -20, 22, scaleHome);
+                DrawButton(gl, 43, 45, sound, scaleSound);
                 break;
         }
+    }
+
+    public void changeVolume(Clip c) {
+        FloatControl gainControl = (FloatControl) c.getControl(FloatControl.Type.MASTER_GAIN);
+        double gain = 0.05;
+        float dB = (float) (Math.log(gain) / Math.log(10.0) * 20.0);
+        gainControl.setValue(dB);
     }
 
     public String GetHighScore() {
@@ -303,9 +325,26 @@ public class RabbitGLEventListener extends RabbitListener {
         }
     }
 
+    public void soundWhistle() {
+        try {
+            whistle = AudioSystem.getAudioInputStream(new File("song//whistle.wav"));
+            clip3 = AudioSystem.getClip();
+            clip3.open(whistle);
+            clip3.loop(0);
+            changeVolume(clip3);
+            if (sound == 19) {
+                clip3.stop();
+            } else {
+                clip3.start();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void drawtime() {
         ren.beginRendering(800, 800);
-        ren.setColor(Color.blue);
+        ren.setColor(Color.white);
         ren.draw("High Score : " + highScore, 300, 760);
         ren.setColor(Color.WHITE);
         ren.endRendering();
@@ -355,7 +394,6 @@ public class RabbitGLEventListener extends RabbitListener {
         gl.glPushMatrix();
         gl.glTranslated(x / 50.0, y / 50.0, 0);
         gl.glScaled(0.2 * scale, 0.2 * scale, 1);
-        //System.out.println(x +" " + y);
         gl.glBegin(GL.GL_QUADS);
         // Front Face
         gl.glTexCoord2f(0.0f, 0.0f);
@@ -379,7 +417,6 @@ public class RabbitGLEventListener extends RabbitListener {
         gl.glPushMatrix();
         gl.glTranslated(x / 50.0, y / 50.0, 0);
         gl.glScaled(0.25 * scale, 0.25 * scale, 1);
-        //System.out.println(x +" " + y);
         gl.glBegin(GL.GL_QUADS);
         // Front Face
         gl.glTexCoord2f(0.0f, 0.0f);
@@ -403,7 +440,6 @@ public class RabbitGLEventListener extends RabbitListener {
         gl.glPushMatrix();
         gl.glTranslated(x / 50.0, y / 50.0, 0);
         gl.glScaled(0.25 * scale, 0.25 * scale, 1);
-        //System.out.println(x +" " + y);
         gl.glBegin(GL.GL_QUADS);
         // Front Face
         gl.glTexCoord2f(0.0f, 0.0f);
@@ -456,7 +492,7 @@ public class RabbitGLEventListener extends RabbitListener {
 
     private void DrawScore_game_over() {
         textRenderer1.beginRendering(800, 800);
-        textRenderer1.setColor(Color.blue);
+        textRenderer1.setColor(Color.WHITE);
         textRenderer1.draw("Your Score Is " + score, 240, 340);
         textRenderer1.setColor(Color.WHITE);
         textRenderer1.endRendering();
@@ -464,7 +500,7 @@ public class RabbitGLEventListener extends RabbitListener {
 
     private void DrawScore() {
         textRenderer.beginRendering(300, 300);
-        textRenderer.setColor(Color.blue);
+        textRenderer.setColor(Color.WHITE);
         textRenderer.draw("Score : " + score, 20, 280);
         textRenderer.draw("Timer : " + timer / 60, 20, 265);
         textRenderer.draw("lives : " + lives, 20, 250);
@@ -495,18 +531,50 @@ public class RabbitGLEventListener extends RabbitListener {
     }
 
     public void hit_Checker(double x, double y, float[][] level) {
-        if (rabbit_TTl > 0) {
-            int xrabbit = (int) (784 - (level[rabbit_position][0] * 392));
-            int yrabbit = (int) (((level[rabbit_position][1]) * 380));
-            if (45 + xrabbit > x && xrabbit - 45 < x && yrabbit > y && yrabbit - 90 < y) {
-                rabbit_TTl = 0;
-                Hitanimation = 10;
-                score++;
-            }else {
-                lives--;
+        for (int index = 0; index < level.length; index++) {
+            if (index == rabbit_position) {
+                if (rabbit_TTl > 0) {
+                    int xrabbit = (int) (784 - (level[rabbit_position][0] * 392));
+                    int yrabbit = (int) (((level[rabbit_position][1]) * 380));
+                    if (45 + xrabbit > x && xrabbit - 45 < x && yrabbit + 10 > y && yrabbit - 90 < y) {
+                        rabbit_TTl = 0;
+                        Hitanimation = 10;
+                        score++;
+                        try {
+                            audio = AudioSystem.getAudioInputStream(new File("song//alert.wav"));
+                            clip1 = AudioSystem.getClip();
+                            clip1.open(audio);
+                            changeVolume(clip1);
+                            if (sound == 19) {
+                                clip1.stop();
+                            } else {
+                                clip1.start();
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            } else {
+                int x_pit = (int) (784 - (level[index][0] * 392));
+                int y_pit = (int) (((level[index][1]) * 380));
+                if (50 + x_pit > x && x_pit - 45 < x && y_pit - 25 < y && y_pit + 10 > y) {
+                    lives--;
+                    try {
+                        hammerSound = AudioSystem.getAudioInputStream(new File("song//hammer.wav"));
+                        clip4 = AudioSystem.getClip();
+                        clip4.open(hammerSound);
+                        changeVolume(clip4);
+                        if (sound == 19) {
+                            clip4.stop();
+                        } else {
+                            clip4.start();
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
             }
-        }else {
-            lives--;
         }
     }
 
@@ -517,7 +585,6 @@ public class RabbitGLEventListener extends RabbitListener {
         gl.glPushMatrix();
         gl.glTranslated(1 - x_axis, 1 - y_axis, 0);
         gl.glScaled(0.2 * scale, 0.2 * scale, 1);
-        //System.out.println(x +" " + y);
         gl.glBegin(GL.GL_QUADS);
         // Front Face
         gl.glTexCoord2f(0.0f, 0.0f);
@@ -537,7 +604,7 @@ public class RabbitGLEventListener extends RabbitListener {
 
     public void DrawBackground(GL gl) {
         gl.glEnable(GL.GL_BLEND);
-        gl.glBindTexture(GL.GL_TEXTURE_2D, textures[4]);    // Turn Blending On
+        gl.glBindTexture(GL.GL_TEXTURE_2D, textures[4]);
 
         gl.glPushMatrix();
         gl.glBegin(GL.GL_QUADS);
@@ -568,7 +635,6 @@ public class RabbitGLEventListener extends RabbitListener {
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        System.out.println(e.getX() + " " + e.getY());
     }
 
     //// 784 X max  761 Y max
@@ -676,6 +742,9 @@ public class RabbitGLEventListener extends RabbitListener {
                 } else if (e.getX() > 115 && e.getX() < 275 && e.getY() > 480 && e.getY() < 585) {
                     scaleHome = 0.6f;
                     isHome = true;
+                } else if (e.getX() >= 685 && e.getX() <= 770 && e.getY() >= 10 && e.getY() <= 65) {
+                    scaleSound = 0.3f;
+                    isSound = true;
                 }
                 break;
         }
@@ -785,6 +854,9 @@ public class RabbitGLEventListener extends RabbitListener {
                     scaleBack = 0.4f;
                     screen = "Pause_Screen";
                     isBack = false;
+                    if (sound == 18) {
+                        clip.start();
+                    }
                 }
                 break;
 
@@ -800,6 +872,10 @@ public class RabbitGLEventListener extends RabbitListener {
                     rabbit_TTl = 0;
                     hammer = 0;
                     levels = "";
+                    if (sound == 18) {
+                        clip.start();
+                    }
+                    clip2.stop();
                     isHome = false;
                 } else if (isAgain) {
                     scaleAgain = 0.7f;
@@ -809,16 +885,17 @@ public class RabbitGLEventListener extends RabbitListener {
                     lives = 3;
                     rabbit_TTl = 0;
                     timer = 1800;
+                    clip2.stop();
                     isAgain = false;
                 }
                 break;
 
             case "Pause_Screen":
-                if(isResume){
+                if (isResume) {
                     scaleResume = 0.7f;
                     screen = "Level";
                     isResume = false;
-                }else if(isRestart) {
+                } else if (isRestart) {
                     scaleRestart = 0.7f;
                     screen = "Level";
                     score = 0;
@@ -827,7 +904,7 @@ public class RabbitGLEventListener extends RabbitListener {
                     hammer = 0;
                     timer = 1800;
                     isRestart = false;
-                }else if(isHome){
+                } else if (isHome) {
                     scaleHome = 0.7f;
                     screen = "Home_Screen";
                     difficulty = "";
@@ -838,7 +915,20 @@ public class RabbitGLEventListener extends RabbitListener {
                     timer = 1800;
                     rabbit_TTl = 0;
                     levels = "";
+                    if (sound == 18) {
+                        clip.start();
+                    }
                     isHome = false;
+                } else if (isSound) {
+                    scaleSound = 0.4f;
+                    isSound = false;
+                    if (sound == 18) {
+                        sound = 19;
+                        clip.stop();
+                    } else {
+                        sound = 18;
+                        clip.start();
+                    }
                 }
                 break;
         }
