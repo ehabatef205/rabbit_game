@@ -69,6 +69,8 @@ public class RabbitGLEventListener extends RabbitListener {
     float scaleResume = 0.7f;
     boolean isResume;
     int sound = 18;
+    float scaleNext = 0.7f;
+    boolean isNext;
 
     int score = 0;
 
@@ -108,15 +110,20 @@ public class RabbitGLEventListener extends RabbitListener {
             "menu.png",
             "restart.png",
             "resume.png",
+            "win.png",
+            "next.png",
+            "change.png",
     };
+
+    String username = "";
 
     TextureReader.Texture texture[] = new TextureReader.Texture[textureNames.length];
 
     int textures[] = new int[textureNames.length];
 
-    AudioInputStream audioStream, audio, gameover, hammerSound, whistle;
+    AudioInputStream audioStream, audio, gameover, hammerSound, whistle, win;
 
-    Clip clip, clip1, clip2, clip3, clip4;
+    Clip clip, clip1, clip2, clip3, clip4, clip5;
 
     @Override
     public void init(GLAutoDrawable glAutoDrawable) {
@@ -153,6 +160,15 @@ public class RabbitGLEventListener extends RabbitListener {
         } catch (Exception ex) {
             System.err.println(ex.getMessage());
         }
+        username = GetUsername();
+        if(username == ""){
+            String a = JOptionPane.showInputDialog(null, "Enter your username");
+            System.out.println(a);
+            if(a == null || a.isEmpty()){
+                a = "Guest";
+            }
+            storeUsername(a);
+        }
     }
 
     @Override
@@ -161,15 +177,15 @@ public class RabbitGLEventListener extends RabbitListener {
         gl.glClear(GL.GL_COLOR_BUFFER_BIT);       //Clear The Screen And The Depth Buffer
         gl.glLoadIdentity();
         DrawBackground(gl);
+        username = GetUsername();
         if (highScore == "") {
-            {
-                highScore = GetHighScore();
-            }
+            highScore = GetHighScore();
         }
         switch (screen) {
             case "Home_Screen":
                 Home_Screen(gl);
-                drawtime();
+                DrawHighScore();
+                DrawUsername();
                 break;
 
             case "Difficulty_Screen":
@@ -264,12 +280,20 @@ public class RabbitGLEventListener extends RabbitListener {
                 DrawButton(gl, -25, -20, 22, scaleHome);
                 DrawButton(gl, 43, 45, sound, scaleSound);
                 break;
+
+            case "Win_Screen":
+                storeHighScore();
+                DrawGameOver(gl, 27, 2.5f);
+                DrawScore_game_over();
+                DrawButton(gl, -30, -30, 22, scaleHome);
+                DrawButton(gl, 30, -30, 28, scaleAgain);
+                break;
         }
     }
 
     public void changeVolume(Clip c) {
         FloatControl gainControl = (FloatControl) c.getControl(FloatControl.Type.MASTER_GAIN);
-        double gain = 0.05;
+        double gain = 0.25;
         float dB = (float) (Math.log(gain) / Math.log(10.0) * 20.0);
         gainControl.setValue(dB);
     }
@@ -310,6 +334,8 @@ public class RabbitGLEventListener extends RabbitListener {
                 writerFile = new FileWriter(scoreFile);
                 writer = new BufferedWriter(writerFile);
                 writer.write("" + score);
+                writer.newLine();
+                writer.write("" + score);
                 highScore = "" + score;
             } catch (Exception e) {
 
@@ -323,6 +349,55 @@ public class RabbitGLEventListener extends RabbitListener {
                 }
             }
         }
+    }
+
+    public String GetUsername() {
+        FileReader readFile = null;
+        BufferedReader reader = null;
+        try {
+            readFile = new FileReader("username.dat");
+            reader = new BufferedReader(readFile);
+            return reader.readLine();
+        } catch (Exception e) {
+            return "";
+        } finally {
+            try {
+                if (reader != null) {
+                    reader.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void storeUsername(String name) {
+            File scoreFile = new File("username.dat");
+            if (!scoreFile.exists()) {
+                try {
+                    scoreFile.createNewFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            FileWriter writerFile = null;
+            BufferedWriter writer = null;
+            try {
+                writerFile = new FileWriter(scoreFile);
+                writer = new BufferedWriter(writerFile);
+                writer.write(name);
+                highScore = "" + score;
+            } catch (Exception e) {
+
+            } finally {
+                try {
+                    if (writer != null) {
+                        writer.close();
+                    }
+                } catch (Exception e) {
+
+                }
+            }
     }
 
     public void soundWhistle() {
@@ -342,10 +417,18 @@ public class RabbitGLEventListener extends RabbitListener {
         }
     }
 
-    public void drawtime() {
+    public void DrawHighScore() {
         ren.beginRendering(800, 800);
         ren.setColor(Color.white);
-        ren.draw("High Score : " + highScore, 300, 760);
+        ren.draw("High Score : " + highScore, 300, 700);
+        ren.setColor(Color.WHITE);
+        ren.endRendering();
+    }
+
+    public void DrawUsername() {
+        ren.beginRendering(800, 800);
+        ren.setColor(Color.white);
+        ren.draw(username, 350, 760);
         ren.setColor(Color.WHITE);
         ren.endRendering();
     }
@@ -540,6 +623,40 @@ public class RabbitGLEventListener extends RabbitListener {
                         rabbit_TTl = 0;
                         Hitanimation = 10;
                         score++;
+                        if (score == 5) {
+                            try {
+                                win = AudioSystem.getAudioInputStream(new File("song//win.wav"));
+                                clip5 = AudioSystem.getClip();
+                                clip5.open(win);
+                                changeVolume(clip5);
+                                if (sound == 19) {
+                                    clip5.stop();
+                                } else {
+                                    clip5.start();
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            if (levels == "Level 1") {
+                                screen = "Win_Screen";
+                            }
+                        } else if (score == 10) {
+                            try {
+                                win = AudioSystem.getAudioInputStream(new File("song//win.wav"));
+                                clip5 = AudioSystem.getClip();
+                                clip5.open(win);
+                                changeVolume(clip5);
+                                if (sound == 19) {
+                                    clip5.stop();
+                                } else {
+                                    clip5.start();
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            if (levels != "Level 3")
+                                screen = "Win_Screen";
+                        }
                         try {
                             audio = AudioSystem.getAudioInputStream(new File("song//alert.wav"));
                             clip1 = AudioSystem.getClip();
@@ -558,7 +675,7 @@ public class RabbitGLEventListener extends RabbitListener {
             } else {
                 int x_pit = (int) (784 - (level[index][0] * 392));
                 int y_pit = (int) (((level[index][1]) * 380));
-                if (50 + x_pit > x && x_pit - 45 < x && y_pit - 25 < y && y_pit + 10 > y) {
+                if (70 + x_pit > x && x_pit - 70 < x && y_pit + 10 > y && y_pit - 90 < y) {
                     lives--;
                     try {
                         hammerSound = AudioSystem.getAudioInputStream(new File("song//hammer.wav"));
@@ -747,6 +864,16 @@ public class RabbitGLEventListener extends RabbitListener {
                     isSound = true;
                 }
                 break;
+
+            case "Win_Screen":
+                if (e.getX() > 115 && e.getX() < 275 && e.getY() > 555 && e.getY() < 660) {
+                    scaleHome = 0.6f;
+                    isHome = true;
+                } else if (e.getX() > 545 && e.getX() < 710 && e.getY() > 555 && e.getY() < 660) {
+                    scaleNext = 0.6f;
+                    isNext = true;
+                }
+                break;
         }
 
     }
@@ -929,6 +1056,44 @@ public class RabbitGLEventListener extends RabbitListener {
                         sound = 18;
                         clip.start();
                     }
+                }
+                break;
+
+            case "Win_Screen":
+                if (isHome) {
+                    scaleHome = 0.7f;
+                    screen = "Home_Screen";
+                    difficulty = "";
+                    level = 0;
+                    score = 0;
+                    lives = 3;
+                    timer = 1800;
+                    rabbit_TTl = 0;
+                    hammer = 0;
+                    levels = "";
+                    clip5.stop();
+                    if (sound == 18) {
+                        clip.start();
+                    }
+                    isHome = false;
+                } else if (isNext) {
+                    scaleNext = 0.7f;
+                    screen = "Level";
+                    clip5.stop();
+                    if (score == 5) {
+                        if (levels == "Level 1") {
+                            Hitanimation = 0;
+                            hammer = 0;
+                            level = 2;
+                        }
+                    } else if (score == 10) {
+                        if (levels != "Level 3") {
+                            Hitanimation = 0;
+                            hammer = 0;
+                            level = 3;
+                        }
+                    }
+                    isNext = false;
                 }
                 break;
         }
